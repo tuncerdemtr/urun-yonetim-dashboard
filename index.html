@@ -321,6 +321,28 @@
             </div>
         </section>
 
+        <!-- Ekonomik Segmente göre kırılımlar -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-8 border border-gray-100 shadow-sm h-[400px] flex flex-col">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 tracking-tight flex items-center">
+                    <span class="w-2 h-2 bg-brand-dark mr-3 rounded-full"></span>
+                    Ekonomik Segmente Göre Ciro (TL)
+                </h2>
+                <div class="relative flex-1">
+                    <canvas id="segmentRevenueChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-8 border border-gray-100 shadow-sm h-[400px] flex flex-col">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 tracking-tight flex items-center">
+                    <span class="w-2 h-2 bg-brand-dark mr-3 rounded-full"></span>
+                    Ekonomik Segmente Göre Satış (Adet)
+                </h2>
+                <div class="relative flex-1">
+                    <canvas id="segmentUnitChart"></canvas>
+                </div>
+            </div>
+        </section>
+
 
     </main>
 
@@ -345,7 +367,7 @@
             // Global Chart Instances
             let trendChart, cityChart;
             let modelRevenueChart, modelUnitChart, materialRevenueChart, materialUnitChart;
-            let colorRevenueChart, colorUnitChart;
+            let colorRevenueChart, colorUnitChart, segmentRevenueChart, segmentUnitChart;
 
             // Ay İsimleri (Türkçe)
             const monthNames = [
@@ -598,6 +620,7 @@
              * P (15): Sipariş No
              * T (19): Malzeme
              * V (21): Kapak Model
+             * W (22): Ekonomik Segment
              * AG (32): Fatura Tarihi (Tarih)
              * AI (34): Toplam Tutar (Gelir)
              * AK (36): BK (Brüt Kâr)
@@ -694,6 +717,8 @@
                 const materialUnits = {};
                 const colorRevenue = {};
                 const colorUnits = {};
+                const segmentRevenue = {};
+                const segmentUnits = {};
 
                 const modelRevenueByMaterial = {};
                 const modelUnitByMaterial = {};
@@ -712,6 +737,8 @@
                     const model = row[21] || 'Bilinmiyor'; // V
                     const material = row[19] || 'Bilinmiyor'; // T
                     const colorCode = row[23] || 'Bilinmiyor'; // X
+                    const economicSegment =
+                        (row[22] && row[22].toString().trim()) || 'Bilinmiyor'; // W
                     const city = row[0] || 'Bilinmiyor'; // A (Satış Noktası)
                     const channel = row.cleanedChannel; // F (Filtrelenmiş)
                     const cost = parseFloat(row[41]) || 0; // AP
@@ -752,6 +779,10 @@
                     colorRevenue[colorCode] =
                         (colorRevenue[colorCode] || 0) + revenue;
                     colorUnits[colorCode] = (colorUnits[colorCode] || 0) + units;
+                    segmentRevenue[economicSegment] =
+                        (segmentRevenue[economicSegment] || 0) + revenue;
+                    segmentUnits[economicSegment] =
+                        (segmentUnits[economicSegment] || 0) + units;
 
                     if (!modelRevenueByMaterial[model]) {
                         modelRevenueByMaterial[model] = {};
@@ -834,6 +865,8 @@
                 const topMaterialUnits = getTopNData(materialUnits, 5);
                 const topColorRevenue = getTopNData(colorRevenue, 5);
                 const topColorUnits = getTopNData(colorUnits, 5);
+                const topSegmentRevenue = getTopNData(segmentRevenue, 5);
+                const topSegmentUnits = getTopNData(segmentUnits, 5);
 
                 const modelRevenueBreakdowns = buildBreakdownMap(
                     topModelRevenue,
@@ -899,6 +932,14 @@
                     colorUnitData: {
                         labels: Object.keys(topColorUnits),
                         data: Object.values(topColorUnits)
+                    },
+                    segmentRevenueData: {
+                        labels: Object.keys(topSegmentRevenue),
+                        data: Object.values(topSegmentRevenue)
+                    },
+                    segmentUnitData: {
+                        labels: Object.keys(topSegmentUnits),
+                        data: Object.values(topSegmentUnits)
                     }
                 };
             }
@@ -925,7 +966,9 @@
                     materialRevenueData: empty,
                     materialUnitData: empty,
                     colorRevenueData: simpleEmpty,
-                    colorUnitData: simpleEmpty
+                    colorUnitData: simpleEmpty,
+                    segmentRevenueData: simpleEmpty,
+                    segmentUnitData: simpleEmpty
                 };
             }
 
@@ -1039,25 +1082,25 @@
                     modelRevenueChart,
                     data.modelRevenueData,
                     formatCurrency,
-                    'Malzeme Kırılımı'
+                    'Malzeme (T) Kırılımı'
                 );
                 updatePieChart(
                     modelUnitChart,
                     data.modelUnitData,
                     formatUnits,
-                    'Malzeme Kırılımı'
+                    'Malzeme (T) Kırılımı'
                 );
                 updatePieChart(
                     materialRevenueChart,
                     data.materialRevenueData,
                     formatCurrency,
-                    'Model Kırılımı'
+                    'Kapak Modeli (V) Kırılımı'
                 );
                 updatePieChart(
                     materialUnitChart,
                     data.materialUnitData,
                     formatUnits,
-                    'Model Kırılımı'
+                    'Kapak Modeli (V) Kırılımı'
                 );
                 updatePieChart(
                     colorRevenueChart,
@@ -1067,6 +1110,16 @@
                 updatePieChart(
                     colorUnitChart,
                     data.colorUnitData,
+                    formatUnits
+                );
+                updatePieChart(
+                    segmentRevenueChart,
+                    data.segmentRevenueData,
+                    formatCurrency
+                );
+                updatePieChart(
+                    segmentUnitChart,
+                    data.segmentUnitData,
                     formatUnits
                 );
             }
@@ -1336,6 +1389,16 @@
                 );
                 colorUnitChart = createPieChart(
                     'colorUnitChart',
+                    emptyPie,
+                    numberTooltip
+                );
+                segmentRevenueChart = createPieChart(
+                    'segmentRevenueChart',
+                    emptyPie,
+                    currencyTooltip
+                );
+                segmentUnitChart = createPieChart(
+                    'segmentUnitChart',
                     emptyPie,
                     numberTooltip
                 );
