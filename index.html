@@ -69,26 +69,65 @@
             </div>
             <div class="flex items-center gap-4">
                 <!-- YENİ: Filtreler -->
-                <div class="flex items-center gap-2">
-                    <select id="monthFilter" class="text-sm border-gray-300 text-gray-600 bg-white rounded px-2 py-1 cursor-pointer focus:ring-1 focus:ring-brand outline-none">
-                        <option value="all">Tüm Yıl</option>
-                        <option value="0">Ocak</option>
-                        <option value="1">Şubat</option>
-                        <option value="2">Mart</option>
-                        <option value="3">Nisan</option>
-                        <option value="4">Mayıs</option>
-                        <option value="5">Haziran</option>
-                        <option value="6">Temmuz</option>
-                        <option value="7">Ağustos</option>
-                        <option value="8">Eylül</option>
-                        <option value="9">Ekim</option>
-                        <option value="10">Kasım</option>
-                        <option value="11">Aralık</option>
-                    </select>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <select id="startMonthFilter" class="text-sm border-gray-300 text-gray-600 bg-white rounded px-2 py-1 cursor-pointer focus:ring-1 focus:ring-brand outline-none">
+                            <option value="all">Başlangıç Ayı</option>
+                            <option value="0">Ocak</option>
+                            <option value="1">Şubat</option>
+                            <option value="2">Mart</option>
+                            <option value="3">Nisan</option>
+                            <option value="4">Mayıs</option>
+                            <option value="5">Haziran</option>
+                            <option value="6">Temmuz</option>
+                            <option value="7">Ağustos</option>
+                            <option value="8">Eylül</option>
+                            <option value="9">Ekim</option>
+                            <option value="10">Kasım</option>
+                            <option value="11">Aralık</option>
+                        </select>
+                        <select id="endMonthFilter" class="text-sm border-gray-300 text-gray-600 bg-white rounded px-2 py-1 cursor-pointer focus:ring-1 focus:ring-brand outline-none">
+                            <option value="all">Bitiş Ayı</option>
+                            <option value="0">Ocak</option>
+                            <option value="1">Şubat</option>
+                            <option value="2">Mart</option>
+                            <option value="3">Nisan</option>
+                            <option value="4">Mayıs</option>
+                            <option value="5">Haziran</option>
+                            <option value="6">Temmuz</option>
+                            <option value="7">Ağustos</option>
+                            <option value="8">Eylül</option>
+                            <option value="9">Ekim</option>
+                            <option value="10">Kasım</option>
+                            <option value="11">Aralık</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <button id="typeFilterButton" type="button" class="text-sm border border-gray-300 text-gray-600 bg-white rounded px-2 py-1 cursor-pointer focus:ring-1 focus:ring-brand outline-none flex items-center gap-1">
+                            <span id="typeFilterLabel">Tür: Tümü</span>
+                            <i class="ph ph-caret-down text-xs"></i>
+                        </button>
+                        <div id="typeFilterDropdown" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-30 hidden">
+                            <div class="py-2">
+                                <label class="flex items-center px-3 py-1.5 text-sm text-gray-700 gap-2">
+                                    <input type="checkbox" class="type-filter-checkbox" value="Mutfak" checked>
+                                    Mutfak
+                                </label>
+                                <label class="flex items-center px-3 py-1.5 text-sm text-gray-700 gap-2">
+                                    <input type="checkbox" class="type-filter-checkbox" value="Ek Sipariş" checked>
+                                    Ek Sipariş
+                                </label>
+                                <label class="flex items-center px-3 py-1.5 text-sm text-gray-700 gap-2">
+                                    <input type="checkbox" class="type-filter-checkbox" value="Diğer" checked>
+                                    Diğer
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <select id="channelFilter" class="text-sm border-gray-300 text-gray-600 bg-white rounded px-2 py-1 cursor-pointer focus:ring-1 focus:ring-brand outline-none">
                         <option value="all">Tüm Kanallar</option>
                         <option value="Bayi">Bayi</option>
-                        <option value="İntema">İntema</option>
+                        <option value="İntema">Intema</option>
                     </select>
                 </div>
 
@@ -260,6 +299,28 @@
 
         </section>
 
+        <!-- Kapak Renk Koduna göre kırılımlar -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-8 border border-gray-100 shadow-sm h-[400px] flex flex-col">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 tracking-tight flex items-center">
+                    <span class="w-2 h-2 bg-brand mr-3 rounded-full"></span>
+                    Kapak Renk Koduna Göre Ciro (TL)
+                </h2>
+                <div class="relative flex-1">
+                    <canvas id="colorRevenueChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-8 border border-gray-100 shadow-sm h-[400px] flex flex-col">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 tracking-tight flex items-center">
+                    <span class="w-2 h-2 bg-brand mr-3 rounded-full"></span>
+                    Kapak Renk Koduna Göre Satış (Adet)
+                </h2>
+                <div class="relative flex-1">
+                    <canvas id="colorUnitChart"></canvas>
+                </div>
+            </div>
+        </section>
+
 
     </main>
 
@@ -284,6 +345,7 @@
             // Global Chart Instances
             let trendChart, cityChart;
             let modelRevenueChart, modelUnitChart, materialRevenueChart, materialUnitChart;
+            let colorRevenueChart, colorUnitChart;
 
             // Ay İsimleri (Türkçe)
             const monthNames = [
@@ -294,6 +356,74 @@
             // Filtreler için global değişkenler
             let rawExcelData = []; // Yüklenen ham veri
             const kpiBreakdowns = {}; // Tooltip verileri
+            const DEFAULT_TYPES = ['Mutfak', 'Ek Sipariş', 'Diğer'];
+
+            function collectCheckedTypes() {
+                const checkboxes = document.querySelectorAll('.type-filter-checkbox');
+                const selected = [];
+                checkboxes.forEach((checkbox) => {
+                    if (checkbox.checked) {
+                        selected.push(checkbox.value);
+                    }
+                });
+                return selected;
+            }
+
+            function getSelectedTypes() {
+                const selected = collectCheckedTypes();
+                return selected.length > 0 ? selected : [...DEFAULT_TYPES];
+            }
+
+            function updateTypeFilterButtonLabel(selectedValues) {
+                const label = document.getElementById('typeFilterLabel');
+                if (!label) return;
+                const values = selectedValues && selectedValues.length
+                    ? selectedValues
+                    : collectCheckedTypes();
+
+                if (values.length === DEFAULT_TYPES.length || values.length === 0) {
+                    label.textContent = 'Tür: Tümü';
+                } else if (values.length === 1) {
+                    label.textContent = `Tür: ${values[0]}`;
+                } else {
+                    label.textContent = `Tür: ${values.join(', ')}`;
+                }
+            }
+
+            function initializeTypeFilter() {
+                const button = document.getElementById('typeFilterButton');
+                const dropdown = document.getElementById('typeFilterDropdown');
+                if (!button || !dropdown) return;
+
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    dropdown.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (
+                        !dropdown.contains(event.target) &&
+                        event.target !== button &&
+                        !button.contains(event.target)
+                    ) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                document.querySelectorAll('.type-filter-checkbox').forEach((checkbox) => {
+                    checkbox.addEventListener('change', (event) => {
+                        const selected = collectCheckedTypes();
+                        if (selected.length === 0) {
+                            event.target.checked = true;
+                            return;
+                        }
+                        updateTypeFilterButtonLabel(selected);
+                        masterRender();
+                    });
+                });
+
+                updateTypeFilterButtonLabel(DEFAULT_TYPES);
+            }
 
             // Helper: Para Formatlama
             const formatCurrency = (value) =>
@@ -306,6 +436,8 @@
             // Helper: Sayı Formatlama
             const formatNumber = (value) =>
                 new Intl.NumberFormat('tr-TR').format(value || 0);
+
+            const formatUnits = (value) => `${formatNumber(value)} Adet`;
 
             // Helper: Yüzde Formatlama (0.xx -> XX.X%)
             const formatPercentage = (value) =>
@@ -406,14 +538,18 @@
                     return;
                 }
 
-                const selectedMonth = document.getElementById('monthFilter').value;
+                const startMonth = document.getElementById('startMonthFilter').value;
+                const endMonth = document.getElementById('endMonthFilter').value;
                 const selectedChannel = document.getElementById('channelFilter').value;
+                const selectedTypes = getSelectedTypes();
 
                 // Ham veriyi filtrelere göre işle
                 const processedData = processData(
                     rawExcelData,
-                    selectedMonth,
-                    selectedChannel
+                    startMonth,
+                    endMonth,
+                    selectedChannel,
+                    selectedTypes
                 );
 
                 // İşlenmiş veriyle dashboard'u güncelle
@@ -467,23 +603,46 @@
              * AK (36): BK (Brüt Kâr)
              * AP (41): Maliyet (Cost)
              */
-            function processData(allRows, monthFilter, channelFilter) {
+            function processData(allRows, startMonthFilter, endMonthFilter, channelFilter, typeFilters) {
+                let minMonth = startMonthFilter !== 'all' ? parseInt(startMonthFilter, 10) : null;
+                let maxMonth = endMonthFilter !== 'all' ? parseInt(endMonthFilter, 10) : null;
+
+                if (
+                    minMonth !== null &&
+                    maxMonth !== null &&
+                    !Number.isNaN(minMonth) &&
+                    !Number.isNaN(maxMonth) &&
+                    minMonth > maxMonth
+                ) {
+                    const tmp = minMonth;
+                    minMonth = maxMonth;
+                    maxMonth = tmp;
+                }
+
+                const selectedTypesSet = new Set(
+                    (typeFilters && typeFilters.length ? typeFilters : DEFAULT_TYPES).map((type) => type)
+                );
+
                 // 1. FİLTRELEME AŞAMASI
                 const rows = allRows.filter((row) => {
                     if (!row) return false;
 
                     // Temel Filtre: Tür (E sütunu, index 4)
-                    const type = row[4];
-                    if (type !== 'Mutfak' && type !== 'Ek Sipariş') {
+                    const rawType = (row[4] || '').toString().trim();
+                    const normalizedType =
+                        rawType === 'Mutfak' || rawType === 'Ek Sipariş' ? rawType : 'Diğer';
+
+                    if (!selectedTypesSet.has(normalizedType)) {
                         return false;
                     }
 
                     // Ay Filtresi (AG sütunu, index 32)
-                    if (monthFilter !== 'all') {
+                    if (minMonth !== null || maxMonth !== null) {
                         const date = parseDate(row[32]);
-                        if (!date || date.getMonth() != monthFilter) {
-                            return false;
-                        }
+                        if (!date) return false;
+                        const month = date.getMonth();
+                        if (minMonth !== null && month < minMonth) return false;
+                        if (maxMonth !== null && month > maxMonth) return false;
                     }
 
                     // Kanal Filtresi (F sütunu, index 5)
@@ -496,7 +655,8 @@
                     }
                     
                     // Filtrelenmiş satıra temizlenmiş kanalı ekle (sonraki adım için)
-                    row.cleanedChannel = channel; 
+                    row.cleanedChannel = channel;
+                    row.normalizedType = normalizedType;
 
                     return true; // Tüm filtrelerden geçti
                 });
@@ -532,6 +692,13 @@
                 const modelUnits = {};
                 const materialRevenue = {};
                 const materialUnits = {};
+                const colorRevenue = {};
+                const colorUnits = {};
+
+                const modelRevenueByMaterial = {};
+                const modelUnitByMaterial = {};
+                const materialRevenueByModel = {};
+                const materialUnitByModel = {};
 
                 // BK KPI
                 let totalGrossProfitMarginSum = 0;
@@ -544,6 +711,7 @@
                     const orderId = row[15]; // P
                     const model = row[21] || 'Bilinmiyor'; // V
                     const material = row[19] || 'Bilinmiyor'; // T
+                    const colorCode = row[23] || 'Bilinmiyor'; // X
                     const city = row[0] || 'Bilinmiyor'; // A (Satış Noktası)
                     const channel = row.cleanedChannel; // F (Filtrelenmiş)
                     const cost = parseFloat(row[41]) || 0; // AP
@@ -581,6 +749,31 @@
                     materialRevenue[material] =
                         (materialRevenue[material] || 0) + revenue;
                     materialUnits[material] = (materialUnits[material] || 0) + units;
+                    colorRevenue[colorCode] =
+                        (colorRevenue[colorCode] || 0) + revenue;
+                    colorUnits[colorCode] = (colorUnits[colorCode] || 0) + units;
+
+                    if (!modelRevenueByMaterial[model]) {
+                        modelRevenueByMaterial[model] = {};
+                    }
+                    if (!modelUnitByMaterial[model]) {
+                        modelUnitByMaterial[model] = {};
+                    }
+                    modelRevenueByMaterial[model][material] =
+                        (modelRevenueByMaterial[model][material] || 0) + revenue;
+                    modelUnitByMaterial[model][material] =
+                        (modelUnitByMaterial[model][material] || 0) + units;
+
+                    if (!materialRevenueByModel[material]) {
+                        materialRevenueByModel[material] = {};
+                    }
+                    if (!materialUnitByModel[material]) {
+                        materialUnitByModel[material] = {};
+                    }
+                    materialRevenueByModel[material][model] =
+                        (materialRevenueByModel[material][model] || 0) + revenue;
+                    materialUnitByModel[material][model] =
+                        (materialUnitByModel[material][model] || 0) + units;
 
                     // 5. Ort. BK Hesaplaması
                     if (revenue > 0) { // AP (cost) 0 olabilir veya olmayabilir
@@ -639,6 +832,25 @@
                 const topModelUnits = getTopNData(modelUnits, 5);
                 const topMaterialRevenue = getTopNData(materialRevenue, 5);
                 const topMaterialUnits = getTopNData(materialUnits, 5);
+                const topColorRevenue = getTopNData(colorRevenue, 5);
+                const topColorUnits = getTopNData(colorUnits, 5);
+
+                const modelRevenueBreakdowns = buildBreakdownMap(
+                    topModelRevenue,
+                    modelRevenueByMaterial
+                );
+                const modelUnitBreakdowns = buildBreakdownMap(
+                    topModelUnits,
+                    modelUnitByMaterial
+                );
+                const materialRevenueBreakdowns = buildBreakdownMap(
+                    topMaterialRevenue,
+                    materialRevenueByModel
+                );
+                const materialUnitBreakdowns = buildBreakdownMap(
+                    topMaterialUnits,
+                    materialUnitByModel
+                );
 
                 return {
                     kpis: {
@@ -662,26 +874,39 @@
                     },
                     modelRevenueData: {
                         labels: Object.keys(topModelRevenue),
-                        data: Object.values(topModelRevenue)
+                        data: Object.values(topModelRevenue),
+                        breakdowns: modelRevenueBreakdowns
                     },
                     modelUnitData: {
                         labels: Object.keys(topModelUnits),
-                        data: Object.values(topModelUnits)
+                        data: Object.values(topModelUnits),
+                        breakdowns: modelUnitBreakdowns
                     },
                     materialRevenueData: {
                         labels: Object.keys(topMaterialRevenue),
-                        data: Object.values(topMaterialRevenue)
+                        data: Object.values(topMaterialRevenue),
+                        breakdowns: materialRevenueBreakdowns
                     },
                     materialUnitData: {
                         labels: Object.keys(topMaterialUnits),
-                        data: Object.values(topMaterialUnits)
+                        data: Object.values(topMaterialUnits),
+                        breakdowns: materialUnitBreakdowns
+                    },
+                    colorRevenueData: {
+                        labels: Object.keys(topColorRevenue),
+                        data: Object.values(topColorRevenue)
+                    },
+                    colorUnitData: {
+                        labels: Object.keys(topColorUnits),
+                        data: Object.values(topColorUnits)
                     }
                 };
             }
 
             // Boş veri döndüren helper (filtre sonucu boşsa)
             function getEmptyDataStructure() {
-                const empty = { labels: [], data: [] };
+                const empty = { labels: [], data: [], breakdowns: {} };
+                const simpleEmpty = { labels: [], data: [] };
                 return {
                     kpis: {
                         totalRevenue: 0,
@@ -698,12 +923,14 @@
                     modelRevenueData: empty,
                     modelUnitData: empty,
                     materialRevenueData: empty,
-                    materialUnitData: empty
+                    materialUnitData: empty,
+                    colorRevenueData: simpleEmpty,
+                    colorUnitData: simpleEmpty
                 };
             }
 
             // Pie chart güncelleme helper'ı
-            function updatePieChart(chart, data, formatter) {
+            function updatePieChart(chart, data, formatter, breakdownTitle = '') {
                 chart.data.labels = data.labels;
                 chart.data.datasets[0].data = data.data;
 
@@ -712,19 +939,47 @@
                     data.labels.length
                 );
 
-                if (formatter) {
-                    chart.options.plugins.tooltip.callbacks.label = (context) => {
-                        const label = context.label || '';
-                        const value = context.raw || 0;
-                        const sum = context.chart.data.datasets[0].data.reduce(
-                            (a, b) => a + b,
-                            0
-                        );
-                        const percentage =
-                            sum > 0 ? ((value / sum) * 100).toFixed(1) + '%' : '0%';
-                        return `${label}: ${formatter(value)} (${percentage})`;
+                const callbacks = chart.options.plugins.tooltip.callbacks || {};
+                callbacks.label = (context) => {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const sum = context.chart.data.datasets[0].data.reduce(
+                        (a, b) => a + b,
+                        0
+                    );
+                    const percentage = sum > 0 ? ((value / sum) * 100).toFixed(1) + '%' : '0%';
+                    return `${label}: ${formatter ? formatter(value) : value} (${percentage})`;
+                };
+
+                if (breakdownTitle && data.breakdowns) {
+                    callbacks.beforeBody = (tooltipItems) => {
+                        const label = tooltipItems?.[0]?.label;
+                        const breakdown = label ? data.breakdowns[label] : null;
+                        if (!breakdown || Object.keys(breakdown).length === 0) {
+                            return [];
+                        }
+                        return [breakdownTitle];
                     };
+                    callbacks.afterBody = (tooltipItems) => {
+                        const label = tooltipItems?.[0]?.label;
+                        const value = tooltipItems?.[0]?.raw || 0;
+                        const breakdown = label ? data.breakdowns[label] : null;
+                        if (!breakdown || Object.keys(breakdown).length === 0) {
+                            return [];
+                        }
+                        return Object.entries(breakdown)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([key, amount]) => {
+                                const pct = value > 0 ? ((amount / value) * 100).toFixed(1) : '0.0';
+                                return `• ${key}: ${formatter ? formatter(amount) : amount} (${pct}%)`;
+                            });
+                    };
+                } else {
+                    delete callbacks.beforeBody;
+                    delete callbacks.afterBody;
                 }
+
+                chart.options.plugins.tooltip.callbacks = callbacks;
                 chart.update();
             }
 
@@ -783,18 +1038,36 @@
                 updatePieChart(
                     modelRevenueChart,
                     data.modelRevenueData,
-                    formatCurrency
+                    formatCurrency,
+                    'Malzeme Kırılımı'
                 );
-                updatePieChart(modelUnitChart, data.modelUnitData, formatNumber);
+                updatePieChart(
+                    modelUnitChart,
+                    data.modelUnitData,
+                    formatUnits,
+                    'Malzeme Kırılımı'
+                );
                 updatePieChart(
                     materialRevenueChart,
                     data.materialRevenueData,
-                    formatCurrency
+                    formatCurrency,
+                    'Model Kırılımı'
                 );
                 updatePieChart(
                     materialUnitChart,
                     data.materialUnitData,
-                    formatNumber
+                    formatUnits,
+                    'Model Kırılımı'
+                );
+                updatePieChart(
+                    colorRevenueChart,
+                    data.colorRevenueData,
+                    formatCurrency
+                );
+                updatePieChart(
+                    colorUnitChart,
+                    data.colorUnitData,
+                    formatUnits
                 );
             }
 
@@ -824,6 +1097,33 @@
                 }
 
                 return topData;
+            }
+
+            function buildBreakdownMap(topData, sourceBreakdowns) {
+                const breakdownMap = {};
+                const topKeys = Object.keys(topData);
+
+                topKeys.forEach((label) => {
+                    if (label === 'Diğer') {
+                        const aggregated = {};
+                        for (const sourceLabel in sourceBreakdowns) {
+                            if (!Object.prototype.hasOwnProperty.call(topData, sourceLabel)) {
+                                const nested = sourceBreakdowns[sourceLabel] || {};
+                                for (const nestedKey in nested) {
+                                    aggregated[nestedKey] =
+                                        (aggregated[nestedKey] || 0) + nested[nestedKey];
+                                }
+                            }
+                        }
+                        breakdownMap[label] = aggregated;
+                    } else if (sourceBreakdowns[label]) {
+                        breakdownMap[label] = { ...sourceBreakdowns[label] };
+                    } else {
+                        breakdownMap[label] = {};
+                    }
+                });
+
+                return breakdownMap;
             }
 
             // Pie Chart Renk paleti
@@ -1029,6 +1329,16 @@
                     emptyPie,
                     numberTooltip
                 );
+                colorRevenueChart = createPieChart(
+                    'colorRevenueChart',
+                    emptyPie,
+                    currencyTooltip
+                );
+                colorUnitChart = createPieChart(
+                    'colorUnitChart',
+                    emptyPie,
+                    numberTooltip
+                );
 
                 // İlk KPI'ları mock veriye (veya sıfıra) göre doldur
                 document.getElementById('kpi-gelir-val').innerText = formatCurrency(0);
@@ -1049,11 +1359,16 @@
 
                 // Filtreler
                 document
-                    .getElementById('monthFilter')
+                    .getElementById('startMonthFilter')
+                    .addEventListener('change', masterRender);
+                document
+                    .getElementById('endMonthFilter')
                     .addEventListener('change', masterRender);
                 document
                     .getElementById('channelFilter')
                     .addEventListener('change', masterRender);
+
+                initializeTypeFilter();
 
                 // KPI tooltip’leri
                 setupTooltipListener('kpi-gelir-card', 'Satış Kanalı', formatCurrency);
