@@ -459,8 +459,6 @@
             const formatNumber = (value) =>
                 new Intl.NumberFormat('tr-TR').format(value || 0);
 
-            const formatUnits = (value) => `${formatNumber(value)} Adet`;
-
             // Helper: Yüzde Formatlama (0.xx -> XX.X%)
             const formatPercentage = (value) =>
                 `${((value || 0) * 100).toFixed(1)}%`;
@@ -630,6 +628,11 @@
                 let minMonth = startMonthFilter !== 'all' ? parseInt(startMonthFilter, 10) : null;
                 let maxMonth = endMonthFilter !== 'all' ? parseInt(endMonthFilter, 10) : null;
 
+                const normalizedChannelFilter =
+                    channelFilter !== 'all'
+                        ? channelFilter.toString().trim().toLocaleLowerCase('tr-TR')
+                        : 'all';
+
                 if (
                     minMonth !== null &&
                     maxMonth !== null &&
@@ -671,10 +674,9 @@
                     // Kanal Filtresi (F sütunu, index 5)
                     // DÜZELTME: trim() hatasını önlemek için string'e çevir ve null kontrolü yap
                     const channel = (row[5] || '').toString().trim();
-                    if (channelFilter !== 'all') {
-                        if (channel !== channelFilter) {
-                            return false;
-                        }
+                    const normalizedChannel = channel.toLocaleLowerCase('tr-TR');
+                    if (normalizedChannelFilter !== 'all' && normalizedChannel !== normalizedChannelFilter) {
+                        return false;
                     }
                     
                     // Filtrelenmiş satıra temizlenmiş kanalı ekle (sonraki adım için)
@@ -973,7 +975,7 @@
             }
 
             // Pie chart güncelleme helper'ı
-            function updatePieChart(chart, data, formatter, breakdownTitle = '') {
+            function updatePieChart(chart, data) {
                 chart.data.labels = data.labels;
                 chart.data.datasets[0].data = data.data;
 
@@ -981,48 +983,6 @@
                 chart.data.datasets[0].backgroundColor = generatePieColors(
                     data.labels.length
                 );
-
-                const callbacks = chart.options.plugins.tooltip.callbacks || {};
-                callbacks.label = (context) => {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const sum = context.chart.data.datasets[0].data.reduce(
-                        (a, b) => a + b,
-                        0
-                    );
-                    const percentage = sum > 0 ? ((value / sum) * 100).toFixed(1) + '%' : '0%';
-                    return `${label}: ${formatter ? formatter(value) : value} (${percentage})`;
-                };
-
-                if (breakdownTitle && data.breakdowns) {
-                    callbacks.beforeBody = (tooltipItems) => {
-                        const label = tooltipItems?.[0]?.label;
-                        const breakdown = label ? data.breakdowns[label] : null;
-                        if (!breakdown || Object.keys(breakdown).length === 0) {
-                            return [];
-                        }
-                        return [breakdownTitle];
-                    };
-                    callbacks.afterBody = (tooltipItems) => {
-                        const label = tooltipItems?.[0]?.label;
-                        const value = tooltipItems?.[0]?.raw || 0;
-                        const breakdown = label ? data.breakdowns[label] : null;
-                        if (!breakdown || Object.keys(breakdown).length === 0) {
-                            return [];
-                        }
-                        return Object.entries(breakdown)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([key, amount]) => {
-                                const pct = value > 0 ? ((amount / value) * 100).toFixed(1) : '0.0';
-                                return `• ${key}: ${formatter ? formatter(amount) : amount} (${pct}%)`;
-                            });
-                    };
-                } else {
-                    delete callbacks.beforeBody;
-                    delete callbacks.afterBody;
-                }
-
-                chart.options.plugins.tooltip.callbacks = callbacks;
                 chart.update();
             }
 
@@ -1078,50 +1038,14 @@
                 cityChart.update();
 
                 // 4. Pie Grafikleri Güncelle
-                updatePieChart(
-                    modelRevenueChart,
-                    data.modelRevenueData,
-                    formatCurrency,
-                    'Malzeme (T) Kırılımı'
-                );
-                updatePieChart(
-                    modelUnitChart,
-                    data.modelUnitData,
-                    formatUnits,
-                    'Malzeme (T) Kırılımı'
-                );
-                updatePieChart(
-                    materialRevenueChart,
-                    data.materialRevenueData,
-                    formatCurrency,
-                    'Kapak Modeli (V) Kırılımı'
-                );
-                updatePieChart(
-                    materialUnitChart,
-                    data.materialUnitData,
-                    formatUnits,
-                    'Kapak Modeli (V) Kırılımı'
-                );
-                updatePieChart(
-                    colorRevenueChart,
-                    data.colorRevenueData,
-                    formatCurrency
-                );
-                updatePieChart(
-                    colorUnitChart,
-                    data.colorUnitData,
-                    formatUnits
-                );
-                updatePieChart(
-                    segmentRevenueChart,
-                    data.segmentRevenueData,
-                    formatCurrency
-                );
-                updatePieChart(
-                    segmentUnitChart,
-                    data.segmentUnitData,
-                    formatUnits
-                );
+                updatePieChart(modelRevenueChart, data.modelRevenueData);
+                updatePieChart(modelUnitChart, data.modelUnitData);
+                updatePieChart(materialRevenueChart, data.materialRevenueData);
+                updatePieChart(materialUnitChart, data.materialUnitData);
+                updatePieChart(colorRevenueChart, data.colorRevenueData);
+                updatePieChart(colorUnitChart, data.colorUnitData);
+                updatePieChart(segmentRevenueChart, data.segmentRevenueData);
+                updatePieChart(segmentUnitChart, data.segmentUnitData);
             }
 
             // Helper: Veriyi Top N + "Diğer" olarak grupla
@@ -1199,7 +1123,7 @@
             }
 
             // Pie/Doughnut chart oluşturan helper
-            function createPieChart(canvasId, mockData, formatterCallback) {
+            function createPieChart(canvasId, mockData) {
                 const ctx = document.getElementById(canvasId).getContext('2d');
                 return new Chart(ctx, {
                     type: 'doughnut',
@@ -1220,11 +1144,7 @@
                                 }
                             },
                             tooltip: {
-                                backgroundColor: '#374151',
-                                padding: 10,
-                                callbacks: {
-                                    label: formatterCallback // Bu, update'de dinamik olarak ayarlanacak
-                                }
+                                enabled: false
                             }
                         }
                     }
@@ -1339,68 +1259,39 @@
                 });
 
                 // 3. Kırılım Grafikleri (Pie)
-                const currencyTooltip = (ctx) => {
-                    if (!ctx.raw) return ' 0';
-                    const sum = ctx.chart.data.datasets[0].data.reduce(
-                        (a, b) => a + b,
-                        0
-                    );
-                    const percentage =
-                        sum > 0 ? ((ctx.raw / sum) * 100).toFixed(1) + '%' : '0%';
-                    return ` ${ctx.label}: ${formatCurrency(ctx.raw)} (${percentage})`;
-                };
-                const numberTooltip = (ctx) => {
-                    if (!ctx.raw) return ' 0';
-                    const sum = ctx.chart.data.datasets[0].data.reduce(
-                        (a, b) => a + b,
-                        0
-                    );
-                    const percentage =
-                        sum > 0 ? ((ctx.raw / sum) * 100).toFixed(1) + '%' : '0%';
-                    return ` ${ctx.label}: ${formatNumber(ctx.raw)} Adet (${percentage})`;
-                };
-
                 const emptyPie = { labels: [], datasets: [{ data: [], backgroundColor: [] }] };
 
                 modelRevenueChart = createPieChart(
                     'modelRevenueChart',
-                    emptyPie,
-                    currencyTooltip
+                    emptyPie
                 );
                 modelUnitChart = createPieChart(
                     'modelUnitChart',
-                    emptyPie,
-                    numberTooltip
+                    emptyPie
                 );
                 materialRevenueChart = createPieChart(
                     'materialRevenueChart',
-                    emptyPie,
-                    currencyTooltip
+                    emptyPie
                 );
                 materialUnitChart = createPieChart(
                     'materialUnitChart',
-                    emptyPie,
-                    numberTooltip
+                    emptyPie
                 );
                 colorRevenueChart = createPieChart(
                     'colorRevenueChart',
-                    emptyPie,
-                    currencyTooltip
+                    emptyPie
                 );
                 colorUnitChart = createPieChart(
                     'colorUnitChart',
-                    emptyPie,
-                    numberTooltip
+                    emptyPie
                 );
                 segmentRevenueChart = createPieChart(
                     'segmentRevenueChart',
-                    emptyPie,
-                    currencyTooltip
+                    emptyPie
                 );
                 segmentUnitChart = createPieChart(
                     'segmentUnitChart',
-                    emptyPie,
-                    numberTooltip
+                    emptyPie
                 );
 
                 // İlk KPI'ları mock veriye (veya sıfıra) göre doldur
