@@ -702,6 +702,7 @@
                 const unitBreakdownChannel = {};
                 const avgOrderValueBreakdown_Revenue = {};
                 const avgOrderValueBreakdown_Units = {}; // DÜZELTME için eklendi
+                const channelOrderSets = {}; // YENİ: Kanal bazlı sipariş takibi
                 const avgGrossProfitBreakdown = {};
                 const channelMarginCounts = {};
 
@@ -748,7 +749,15 @@
                     // 1. KPI Hesaplamaları
                     totalRevenue += revenue;
                     totalUnits += units;
-                    if (orderId) orderSet.add(orderId);
+                    if (orderId) {
+                        orderSet.add(orderId);
+
+                        // Kanal bazlı sipariş seti
+                        if (!channelOrderSets[channel]) {
+                            channelOrderSets[channel] = new Set();
+                        }
+                        channelOrderSets[channel].add(orderId);
+                    }
 
                     // KPI Tooltip verisi (Kanal)
                     revenueBreakdownChannel[channel] =
@@ -822,16 +831,18 @@
                     }
                 });
 
-                // Ort. Sipariş Değeri (Toplam Gelir / Toplam Adet)
-                const avgOrderValue = totalUnits > 0 ? totalRevenue / totalUnits : 0;
+                // Ort. Sipariş Değeri (Toplam Gelir / Toplam Sipariş Sayısı)
+                // DÜZELTME: Toplam Adet (totalUnits) yerine Sipariş Sayısı (orderSet.size) kullanılmalı
+                const totalOrders = orderSet.size;
+                const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
                 // Ort. Sip. Değ. Tooltip için son hesaplama (DÜZELTME)
                 const avgOrderValueTooltipData = {};
                 for (const channel in avgOrderValueBreakdown_Revenue) {
                     const channelRevenue = avgOrderValueBreakdown_Revenue[channel];
-                    const channelUnits = avgOrderValueBreakdown_Units[channel];
+                    const channelOrders = channelOrderSets[channel] ? channelOrderSets[channel].size : 0;
                     avgOrderValueTooltipData[channel] =
-                        channelUnits > 0 ? channelRevenue / channelUnits : 0;
+                        channelOrders > 0 ? channelRevenue / channelOrders : 0;
                 }
 
                 // Ort. BK Tooltip için son hesaplama
